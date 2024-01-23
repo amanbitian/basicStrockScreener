@@ -14,12 +14,13 @@ class MysqlConnection():
 
             # Connect to MySQL
             connection = pymysql.connect(**db_config)
-
+            print(connection)
             return connection
+            # return {'success': True, 'message': 'Connected to MySQL'}
 
         except pymysql.Error as err:
             print(f"Error: {err}")
-            return None
+            return {'success': False, 'message': f"Connection error: {err}"}
 
     def execute_query(self, connection, query):
         try:
@@ -27,19 +28,23 @@ class MysqlConnection():
             with connection.cursor() as cursor:
                 # Execute the query
                 cursor.execute(query)
+                # Fetch the column names
+                columns = [desc[0] for desc in cursor.description]
 
-                # Fetch the results if needed
+                # Fetch the results
                 results = cursor.fetchall()
-                return results
+
+                return columns, results
 
         except pymysql.Error as err:
             print(f"Error: {err}")
             return None
 
         finally:
+            pass
             # Close the connection
-            if connection:
-                connection.close()
+            # if connection:
+            #     connection.close()
 
 # #try
 # mysql_conn = MysqlConnection()
