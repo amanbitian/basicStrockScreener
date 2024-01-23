@@ -1,58 +1,4 @@
-import pandas as pd
-import pymysql
-
-
-# def create_stocks_data_database(cursor):
-#     try:
-#         # Create the 'stocks_data' database if it doesn't exist
-#         cursor.execute("CREATE DATABASE IF NOT EXISTS stocks_data;")
-#         print("Database 'stocks_data' created or already exists.")
-#
-#     except pymysql.Error as err:
-#         print(f"Error: {err}")
-#
-#
-# def check_mysql_connection():
-#     try:
-#         # Replace these values with your actual database connection details
-#         db_config = {
-#             'host': 'localhost',
-#             'user': 'root',
-#             'password': '12345678',
-#             'database': 'stocks_data',
-#         }
-#
-#         # Attempt to establish a connection using pymysql
-#         connection = pymysql.connect(**db_config)
-#
-#         # Check if the connection is successful
-#         if connection.open:
-#             print("Connection to MySQL successful.")
-#             print(f"Server version: {connection.get_server_info()}")
-#
-#             # Create 'stocks_data' database if not present
-#             with connection.cursor() as cursor:
-#                 create_stocks_data_database(cursor)
-#
-#             print(f"Database: {db_config['database']}")
-#
-#             # Perform additional checks or operations as needed
-#
-#         # Close the connection
-#         connection.close()
-#         print("Connection closed.")
-#
-#     except pymysql.Error as err:
-#         print(f"Error: {err}")
-#
-#
-# # Call the function to check the connection
-# check_mysql_connection()
-
-# print(pd.read_csv('tickers_name_mapping.csv').columns)
-
-### adding ticker files to sql
-
+import os
 import pandas as pd
 import pymysql
 
@@ -60,10 +6,11 @@ def upload_csv_to_mysql(csv_file_path):
     try:
         # Replace these values with your actual database connection details
         db_config = {
-            'host': 'localhost',
-            'user': 'root',
-            'password': '12345678',
-            'database': 'stocks_data',
+            'host': os.environ['host'],
+            'user': os.environ['user'],
+            'password': os.environ['password'],
+            'database': os.environ['database'],
+
         }
 
         # Read CSV file into a DataFrame

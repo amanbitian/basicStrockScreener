@@ -1,30 +1,9 @@
-import requests
-import sqlalchemy
-import pymysql
 import pandas as pd
-import ssl
-import yfinance as yf
-import urllib3
-# urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
-
-# Ignore SSL certificate verification (not recommended for production)
-# ssl._create_default_https_context = ssl._create_unverified_context
 
 
-## We need to create 3 schema
+## We need to create 2 schema
 indices= ["Nifty50", "Nifty200"]
 
-# print("db check")
-# def schemacreator(index):
-#     print("inside schema creator")
-#     #                               db://user:password@hostport;/
-#     engine=sqlalchemy.create_engine("mysql://root:Dec@2023@localhost3306:/")
-#     engine.execute(sqlalchemy.schema.CreateSchema(index))
-#     print(f"Connected to sql server and schema created {index}")
-#
-# for index in indices:
-#     print(index)
-#     schemacreator(index)
 
 # ###
 nifty50=pd.read_html('https://en.wikipedia.org/wiki/NIFTY_50', flavor='html5lib')[2]

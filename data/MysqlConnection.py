@@ -1,15 +1,15 @@
 import pymysql
-
+import os
 
 class MysqlConnection():
     def get_mysql_connection(self):
         try:
             # Replace these values with your actual database connection details
             db_config = {
-                'host': 'localhost',
-                'user': 'root',
-                'password': '12345678',
-                'database': 'stocks_data',
+                'host': os.environ['host'],
+                'user': os.environ['user'],
+                'password': os.environ['password'],
+                'database': os.environ['database'],
             }
 
             # Connect to MySQL
