@@ -22,19 +22,23 @@ class MysqlConnection():
             print(f"Error: {err}")
             return {'success': False, 'message': f"Connection error: {err}"}
 
-    def execute_query(self, connection, query):
+    def execute_query(self, connection, query, type):
         try:
             # Create a cursor object
             with connection.cursor() as cursor:
-                # Execute the query
-                cursor.execute(query)
-                # Fetch the column names
-                columns = [desc[0] for desc in cursor.description]
+                if type=="fetch":
+                    # Execute the query
+                    cursor.execute(query)
+                    # Fetch the column names
+                    columns = [desc[0] for desc in cursor.description]
 
-                # Fetch the results
-                results = cursor.fetchall()
+                    # Fetch the results
+                    results = cursor.fetchall()
 
-                return columns, results
+                    return columns, results
+                elif type=='Create':
+                    cursor.execute(query)
+
 
         except pymysql.Error as err:
             print(f"Error: {err}")
