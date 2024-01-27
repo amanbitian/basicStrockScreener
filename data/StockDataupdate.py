@@ -2,7 +2,6 @@ from data.MysqlConnection import MysqlConnection
 import pandas as pd
 import yfinance as yf
 class StockDataupdate():
-
     def get_tickers(self):
         mysql_conn = MysqlConnection()
         print(mysql_conn)
@@ -11,7 +10,7 @@ class StockDataupdate():
         print("connection is established")
         if connection:
             query = "SELECT * FROM companies_ticker;"
-            columns, results = mysql_conn.execute_query(connection, query)
+            columns, results = mysql_conn.execute_query(connection, query,"fetch")
             # print(type(results))
             # print(columns)
             # print(results)
@@ -19,7 +18,8 @@ class StockDataupdate():
             com_ticker= pd.DataFrame(results, columns=columns)
             # print(tickers.head(2))
             if connection:
-                connection.close()
+                pass
+                # connection.close()
             return com_ticker
 
     def stock_data(self):
@@ -50,11 +50,8 @@ class StockDataupdate():
         #                         """
         #                         cursor.execute(insert_query)
 
-    def create_stock_table(self, company_name):
+    def create_stock_table(self, company_name, mysql_conn,connection):
         try:
-            # Create a cursor object
-            mysql_conn = MysqlConnection()
-            connection = mysql_conn.get_mysql_connection()
             # Create a table for the stock data
             create_table_query = f"""
                 CREATE TABLE IF NOT EXISTS {company_name}_data (
@@ -68,10 +65,10 @@ class StockDataupdate():
                     PRIMARY KEY (Date)
                 );
             """
-            mysql_conn.execute(create_table_query)
+            mysql_conn.execute_query(connection,create_table_query, "Create")
             print(f"Table {company_name}_data created successfully.")
 
-        except mysql_conn.Error as err:
+        except Exception as err:
             print(f"Error: {err}")
 
     def fetch_stock_data(self, ticker):
@@ -89,10 +86,25 @@ class StockDataupdate():
             return None
 
 
+# Create a cursor object
+mysql_conn = MysqlConnection()
+connection = mysql_conn.get_mysql_connection()
+
 st=StockDataupdate()
 print("here")
-# print(st.fetch_stock_data('360ONE.NS'))
-# print(st.get_tickers()['company_name'])
+
 cname=list(st.get_tickers()['company_name'])
-for i in cname:
-    st.create_stock_table(i)
+### Cleaning org name to create sql table:
+clean_name = []
+
+for item in cname:
+    # Replace spaces with underscores and remove periods
+    transformed_item = item.replace(' ', '_').replace('.', '')
+    clean_name.append(transformed_item)
+
+for i in clean_name:
+    st.create_stock_table(i, mysql_conn,connection)
+
+
+
+# st.create_stock_table("raj", mysql_conn,connection)
