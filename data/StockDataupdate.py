@@ -1,6 +1,7 @@
 from data.MysqlConnection import MysqlConnection
 import pandas as pd
 import yfinance as yf
+from datetime import datetime
 class StockDataupdate():
     def get_tickers(self):
         mysql_conn = MysqlConnection()
@@ -22,33 +23,41 @@ class StockDataupdate():
                 # connection.close()
             return com_ticker
 
-    def stock_data(self):
-        tickers= StockDataupdate.get_tickers(self)
-        print(tickers.sample(2))
-        ticker_list=list(tickers['symbol'])
-        # if connection_status['success']:
-        #     try:
-        #         # List of stock tickers
-        #         stock_tickers = ['AAPL', 'GOOGL', 'MSFT']
+    def stock_data(self,stock_tickers,comp_name,connection):
+        # tickers= StockDataupdate.get_tickers(self)
+        # print(tickers.sample(2))
+        # ticker_list=list(tickers['symbol'])
+        ticker_list=stock_tickers
+        # Get today's date
+        end_date = str(datetime.now().date())
+
+        # try:
         #
-        #         for ticker in stock_tickers:
-        #             # Create a table for each stock
-        #             mysql_conn.create_stock_table(ticker)
-        #
-        #             # Fetch stock data
-        #             stock_data = fetch_stock_data(ticker)
-        #
-        #             # Insert data into the corresponding table
-        #             if stock_data is not None:
-        #                 with mysql_conn.connection.cursor() as cursor:
-        #                     for index, row in stock_data.iterrows():
-        #                         insert_query = f"""
-        #                             INSERT IGNORE INTO {ticker}_data
-        #                             VALUES ('{row['Date']}', {row['Open']}, {row['High']},
-        #                                     {row['Low']}, {row['Close']}, {row['Volume']},
-        #                                     {row['Adj Close']});
-        #                         """
-        #                         cursor.execute(insert_query)
+        if len(stock_tickers)==len(comp_name):
+            for i in range(len(stock_tickers)):
+                # Create a table for each stock
+                # mysql_conn.create_stock_table(ticker)
+                print(f"pushing data for {comp_name[i]}")
+                # Fetch stock data
+                stock_data = StockDataupdate.fetch_stock_data_from_yf(self,ticker_list[i],end_date)
+
+                # Insert data into the corresponding table
+                if stock_data is not None:
+                    for index, row in stock_data.iterrows():
+                        # print(row['Date'].date())
+                        # print(type(row['Date'].date()))
+
+                        insert_query = f"""
+                            INSERT IGNORE INTO {comp_name[i]}_data
+                            VALUES ('{row['Date'].date()}', {row['Open']}, {row['High']},
+                                    {row['Low']}, {row['Close']}, {row['Volume']},
+                                    {row['Adj Close']});
+                        """
+                        # cursor.execute(insert_query)
+                        mysql_conn.execute_query(connection, insert_query, "insert")
+        else:
+            print("ticker len doesn't match comp_name")
+
 
     def create_stock_table(self, company_name, mysql_conn,connection):
         try:
@@ -71,10 +80,10 @@ class StockDataupdate():
         except Exception as err:
             print(f"Error: {err}")
 
-    def fetch_stock_data(self, ticker):
+    def fetch_stock_data_from_yf(self, ticker,end_date):
         try:
             # Fetch historical stock data from Yahoo Finance
-            stock_data = yf.download(ticker, start="2000-01-01", end="2023-01-24")
+            stock_data = yf.download(ticker, start="2000-01-01", end=end_date) #"2023-01-24")
 
             # Convert the Date index to a column
             stock_data.reset_index(inplace=True)
@@ -94,6 +103,7 @@ st=StockDataupdate()
 print("here")
 
 cname=list(st.get_tickers()['company_name'])
+stock_tickers=list(st.get_tickers()['symbol'])
 ### Cleaning org name to create sql table:
 clean_name = []
 
@@ -102,9 +112,13 @@ for item in cname:
     transformed_item = item.replace(' ', '_').replace('.', '')
     clean_name.append(transformed_item)
 
-for i in clean_name:
-    st.create_stock_table(i, mysql_conn,connection)
+print(len(clean_name))
+print(len(stock_tickers))
+# print(stock_tickers)
+st.stock_data(stock_tickers,clean_name,connection)
 
+### create a table
+# for i in clean_name:
+#     st.create_stock_table(i, mysql_conn,connection)
 
-
-# st.create_stock_table("raj", mysql_conn,connection)
+# st.fetch_stock_data_from_yf('360ONE.NS')

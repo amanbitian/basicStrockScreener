@@ -38,6 +38,12 @@ class MysqlConnection():
                     return columns, results
                 elif type=='Create':
                     cursor.execute(query)
+                elif type=='insert':
+                    # Execute the query
+                    cursor.execute(query)
+                    # Commit the changes (since inserting is a DML operation)
+                    connection.commit()
+
 
 
         except pymysql.Error as err:
